@@ -1,23 +1,17 @@
-import {
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import TodoList from "../components/TodoList";
 import todosData from "../data/todosData";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Home() {
   const [localData, setLocalData] = useState(
     todosData.sort((a, b) => a.isCompleted - b.isCompleted)
   );
   const [isHidden, setIsHidden] = useState(false);
+  const navigation = useNavigation();
 
   const handleHidePress = () => {
-    console.log(isHidden);
     if (isHidden) {
       setLocalData(todosData.sort((a, b) => a.isCompleted - b.isCompleted));
     } else {
@@ -48,7 +42,10 @@ export default function Home() {
       <Text style={styles.title}>Tomorrow</Text>
       <TodoList todosData={localData.filter((todo) => !todo.isToday)} />
 
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate("Add")}
+      >
         <Text style={styles.textPlus}>+</Text>
       </TouchableOpacity>
     </View>
