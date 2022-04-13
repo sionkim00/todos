@@ -8,11 +8,40 @@ import {
   TouchableOpacity,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodosReducer } from "../redux/todosSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import uuid from "react-native-uuid";
+import { useNavigation } from "@react-navigation/native";
 
 export default function AddTodo() {
   const [name, setName] = useState("");
   const [date, setDate] = useState(new Date());
   const [isToday, setIsToday] = useState(false);
+  const listTodos = useSelector((state) => state.todos.todos);
+
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
+  const addTodo = async () => {
+    const newTodo = {
+      id: uuid.v4(),
+      text: name,
+      hour: date.toString(),
+      isToday,
+      isCompleted: false,
+    };
+    try {
+      await AsyncStorage.setItem(
+        "@Todos",
+        JSON.stringify([...listTodos, newTodo])
+      );
+      dispatch(addTodosReducer(newTodo));
+      navigation.goBack();
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Task</Text>
@@ -40,7 +69,7 @@ export default function AddTodo() {
         <Text style={styles.inputTitle}>Today</Text>
         <Switch value={isToday} onValueChange={(value) => setIsToday(value)} />
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={addTodo}>
         <Text style={styles.buttonText}>Done</Text>
       </TouchableOpacity>
     </View>
@@ -52,13 +81,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F7F8FA",
     paddingHorizontal: 30,
-    marginTop: 50,
   },
   title: {
     fontSize: 34,
     fontWeight: "bold",
     marginBottom: 35,
-    marginTop: 10,
+    marginTop: 50,
   },
   inputTitle: {
     fontSize: 20,

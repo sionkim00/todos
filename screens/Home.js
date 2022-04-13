@@ -1,23 +1,43 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TodoList from "../components/TodoList";
 import todosData from "../data/todosData";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector, useDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { hideCompletedReducer, setTodosReducer } from "../redux/todosSlice";
 
 export default function Home() {
-  const [localData, setLocalData] = useState(
-    todosData.sort((a, b) => a.isCompleted - b.isCompleted)
-  );
+  const todos = useSelector((state) => state.todos.todos);
+  // const [localData, setLocalData] = useState(
+  //   todosData.sort((a, b) => a.isCompleted - b.isCompleted)
+  // );
   const [isHidden, setIsHidden] = useState(false);
+
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  useEffect(() => {
+    const getTodos = async () => {
+      try {
+        const todos = await AsyncStorage.getItem("@Todos");
+        if (todos) {
+          dispatch(setTodosReducer(JSON.parse(todos)));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getTodos();
+  }, []);
+
   const handleHidePress = () => {
-    if (isHidden) {
-      setLocalData(todosData.sort((a, b) => a.isCompleted - b.isCompleted));
-    } else {
-      setLocalData(localData.filter((todo) => !todo.isCompleted));
-    }
-    setIsHidden(!isHidden);
+    // if (isHidden) {
+    //   setLocalData(todosData.sort((a, b) => a.isCompleted - b.isCompleted));
+    // } else {
+    //   setLocalData(localData.filter((todo) => !todo.isCompleted));
+    // }
+    // setIsHidden(!isHidden);
   };
 
   return (
@@ -37,10 +57,10 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-      <TodoList todosData={localData.filter((todo) => todo.isToday)} />
+      <TodoList todosData={todos.filter((todo) => todo.isToday)} />
 
       <Text style={styles.title}>Tomorrow</Text>
-      <TodoList todosData={localData.filter((todo) => !todo.isToday)} />
+      <TodoList todosData={todos.filter((todo) => !todo.isToday)} />
 
       <TouchableOpacity
         style={styles.addButton}
