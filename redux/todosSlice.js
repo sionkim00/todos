@@ -15,7 +15,7 @@ export const todosSlice = createSlice({
       state.todos.push(action.payload);
     },
     hideCompletedReducer: (state) => {
-      state.todos = state.todos.filter((todo) => !todo.completed);
+      state.todos = state.todos.filter((todo) => !todo.isCompleted);
     },
     updateTodoReducer: (state, action) => {
       state.todos = state.todos.map((todo) => {

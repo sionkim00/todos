@@ -31,13 +31,17 @@ export default function Home() {
     getTodos();
   }, []);
 
-  const handleHidePress = () => {
-    // if (isHidden) {
-    //   setLocalData(todosData.sort((a, b) => a.isCompleted - b.isCompleted));
-    // } else {
-    //   setLocalData(localData.filter((todo) => !todo.isCompleted));
-    // }
-    // setIsHidden(!isHidden);
+  const handleHidePress = async () => {
+    if (isHidden) {
+      setIsHidden(false);
+      const todos = await AsyncStorage.getItem("@Todos");
+      if (todos) {
+        dispatch(setTodosReducer(JSON.parse(todos)));
+      }
+    } else {
+      setIsHidden(true);
+      dispatch(hideCompletedReducer());
+    }
   };
 
   return (

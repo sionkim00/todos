@@ -1,35 +1,58 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import Checkbox from "./Checkbox";
 import moment from "moment";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTodoReducer } from "../redux/todosSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Todo({ id, text, isCompleted, isToday, hour }) {
   const [localHour, setLocalHour] = useState(new Date(hour));
+  const todos = useSelector((state) => state.todos.todos);
+  const dispatch = useDispatch();
+
+  const handleDeleteTodo = async () => {
+    dispatch(deleteTodoReducer(id));
+    try {
+      await AsyncStorage.setItem(
+        "@Todos",
+        JSON.stringify(todos.filter((todo) => todo.id !== id))
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <View style={styles.container}>
-      <Checkbox
-        id={id}
-        text={text}
-        isCompleted={isCompleted}
-        isToday={isToday}
-        hour={hour}
-      />
-      <View>
-        <Text
-          style={
-            isCompleted ? [styles.text, styles.completedText] : styles.text
-          }
-        >
-          {text}
-        </Text>
-        <Text
-          style={
-            isCompleted ? [styles.time, styles.completedText] : styles.time
-          }
-        >
-          {moment(localHour).format("LT")}
-        </Text>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Checkbox
+          id={id}
+          text={text}
+          isCompleted={isCompleted}
+          isToday={isToday}
+          hour={hour}
+        />
+        <View>
+          <Text
+            style={
+              isCompleted ? [styles.text, styles.completedText] : styles.text
+            }
+          >
+            {text}
+          </Text>
+          <Text
+            style={
+              isCompleted ? [styles.time, styles.completedText] : styles.time
+            }
+          >
+            {moment(localHour).format("LT")}
+          </Text>
+        </View>
       </View>
+      <TouchableOpacity onPress={handleDeleteTodo}>
+        <MaterialIcons name="delete-outline" size={24} color="#737373" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -39,6 +62,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   text: {
     fontSize: 15,
