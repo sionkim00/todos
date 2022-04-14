@@ -10,7 +10,6 @@ export const todosSlice = createSlice({
   reducers: {
     setTodosReducer: (state, action) => {
       state.todos = action.payload;
-      console.log(state.todos);
     },
     addTodosReducer: (state, action) => {
       state.todos.push(action.payload);
